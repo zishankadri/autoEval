@@ -1,9 +1,6 @@
 # from tika import parser
 import fitz
 from django.conf import settings
-# import openai
-from google import genai
-
 from .models import Note
 
 import requests
