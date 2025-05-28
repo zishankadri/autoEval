@@ -6,29 +6,28 @@ from google import genai
 
 from .models import Note
 
+import requests
 
-# Configure OpenAI API key
-# openai.api_key = settings.API_KEY
-# Configure Gemini API key
-client = genai.Client(api_key="AIzaSyBUKALyuqU2eQh6ptCzdT8w453CLorVFc0")
+API_KEY = settings.API_KEY
 
-# Function to get response from OpenAI GPT-3.5 engine 
-# def get_gpt_response(promt:str, engine="gpt-3.5-turbo-instruct"):
-#     return openai.Completion.create(
-#         engine=engine,  # text-davinci-003 Or another GPT-3.5 engine
-#         prompt=promt,
-#         max_tokens=50  # Maximum tokens in the response
-#     )
+def get_perplexity_response(prompt: str, model="sonar-pro"):
+    url = "https://api.perplexity.ai/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    return response.json()['choices'][0]['message']['content']
 
-# Function to get response from OpenAI GPT-3.5 engine 
-def get_gpt_response(promt:str, engine="gpt-3.5-turbo-instruct"):
-    return client.models.generate_content(
-        model="gemini-2.0-flash", contents=promt
-    )
 
 
 def summarize(content):
-    response = get_gpt_response(f'''
+    response = get_perplexity_response(f'''
         You are given a string variable containing a full chapter you need to impliment principals which make a great MCQ type question and generate 1 good question 
         questions and answers should preferably be under 10 words
         Return the result as a single string that I can split usinag the '|' character in Python.
@@ -54,13 +53,11 @@ def get_question_from_pdf(file_url):
     print("summary: ", summary)
     return summary
     
-# get_question_from_pdf("/home/zishan/Documents/CIA-RDP96-00788R001200060018-5.pdf")
-
 def make_notes(test):
     notes = Note.objects.filter(test=test)
     
     for note in notes:
-        note.notes = get_gpt_response(f'''
+        note.notes = get_perplexity_response(f'''
             A student has failed the following questions. Provide a detailed explanation for each incorrect answer, clarifying the concept and correcting any misunderstandings.
             List of questions:
             {note.questions}
