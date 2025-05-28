@@ -233,4 +233,5 @@ cloudinary.config(
     api_secret = "b-CwIGz8S-VqALmYkuOZCM1XwGM",
 )
 
+
 API_KEY = os.getenv('API_KEY')
