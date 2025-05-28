@@ -1,0 +1,64 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block main %}
+  <style>
+    .main {
+      height: var(--full-height);
+      max-height: var(--full-height);
+    }
+  </style>
+  
+  <script src="{% static "js/dropzone.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "css/dropzone.min.css" %}" type="text/css" />
+
+  <div class="main relative p-8 flex flex-col justify-center items-center h-full text-slate-400">
+    <div class="flex flex-col mb-4 gap-4 w-full max-w-[600px]">
+      <h1 class="text-xl text-slate-400">
+        Finished on {{test.date_completed}}
+      </h1>
+
+      <div class="flex gap-4">
+        <div class="inline-block py-2 flex-1 px-8 rounded-lg border">
+          <span class="">Average score</span>
+          <h1 class="text-3xl text-center my-4 text-blue-500">{{test.average_grades|floatformat:2}}</h1>
+        </div>
+        <div class="inline-block py-2 flex-1 px-8 rounded-lg border">
+          <span class="">Completion rate</span>
+          <h1 class="text-3xl text-center my-4 text-blue-500">{{test.completion_rate|floatformat:2}}%</h1>
+        </div>
+      </div>
+      <a class="btn-secondary !inline-block self-end !border-red-400 !text-red-400 hover:bg-red-400 hover:!text-white"
+      href="{% url "delete_test" test_id=test.id %}">
+      Delete test
+      </a>
+    </div>
+
+    <div class="flex flex-col mb-4 gap-4 w-full max-w-[600px]">
+      <h1 class="text-xl text-slate-400"> Notes </h1>
+      {% for note in notes %}
+      <div class="flex gap-8 items-center justify-between w-full p-4 border rounded-lg bg-slate-50">
+        <div class="flex flex-col">
+          <h2 class="text-lg font-semibold text-slate-600">{{ note.student.first_name }} {{ note.student.last_name }}</h2>
+          <p class="text-sm text-slate-500">{{ note.test.name }}</p>
+        </div>
+        <button onclick="downloadFile({{note.id}})" class="btn-primary !px-4 !py-2">
+          Download Note
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+<script>
+    function downloadFile(noteId) {
+        const link = document.createElement("a");
+        link.href = `/mcqs/download_note/${noteId}/`;
+        link.setAttribute("download", "download.txt");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+{% endblock main %}
